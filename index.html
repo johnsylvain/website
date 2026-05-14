@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>John Sylvain, Lead Engineer</title>
+  <title>John Sylvain, Product Engineer</title>
   <meta name="description" content="Building the internet">
   <link rel="icon" type="image/x-icon" href="favicon.ico?v=1">
   <style>
@@ -146,6 +146,16 @@
 
     /* ── Play button ───────────────────────────────────────── */
 
+    .dashed {
+      position: relative;
+    }
+
+    .dashed::before {
+      content: '▸';
+      position: absolute;
+      right: calc(100% + 6px);
+    }
+
     .title-row {
       display: flex;
       justify-content: space-between;
@@ -182,12 +192,19 @@
 
     .wave-char {
       display: inline-block;
+      white-space: pre;
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace;
     }
 
     .play-btn:not([disabled]):hover .wave-char,
     .play-btn:not([disabled]):focus-visible .wave-char {
       animation: wave 120ms ease-in-out;
       animation-delay: calc(var(--i) * 18ms);
+    }
+
+    .play-btn.is-playing .wave-char {
+      animation: wave 1000ms ease-in-out infinite;
+      animation-delay: calc(var(--i) * 60ms);
     }
 
     @keyframes wave {
@@ -204,6 +221,11 @@
       #avatar-stage {
         max-width: 240px;
       }
+      .title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
     }
   </style>
 </head>
@@ -212,50 +234,54 @@
     <div id="avatar-stage" data-sprite-talk aria-hidden="true"></div>
 
     <div class="title-row">
-      <p><strong>John Sylvain</strong>, Lead Engineer</p>
+      <p class="dashed"><strong>John Sylvain</strong>, Product Engineer</p>
       <p class="credit">
         <button type="button" id="play-btn" class="play-btn" disabled>
           <span class="play-icon" aria-hidden="true">▸</span>
-          <span class="play-label">Loading</span>
+          <span class="play-label"></span>
         </button>
       </p>
     </div>
 
     <div class="bio">
       <p>
-        I'm John Sylvain, a <strong>lead frontend engineer</strong> at
-        <strong><a href="https://joinoutfit.com" target="_blank" rel="noopener noreferrer">Outfit</a></strong>, a
-        personalized travel platform focused on tailored recommendations and rich UI interactions.
-        My background spans startup product development,
-        frontend architecture, and design-oriented engineering, with an
-        emphasis on translating complex workflows into intuitive interfaces.
+        I'm John Sylvain, a
+        <strong>lead frontend engineer</strong> at
+        <strong><a href="https://joinoutfit.com" target="_blank" rel="noopener noreferrer">Outfit</a></strong>,
+        where I run the frontend on a personalized travel platform built
+        around tailored recommendations and rich UI interactions. My work
+        spans startup product development, frontend architecture, and
+        design-oriented engineering, with an emphasis on shipping pragmatic
+        solutions under real constraints.
       </p>
 
       <p>
-        Outside of client and product work, I run
-        <em><a href="https://artifactlab.net" target="_blank" rel="noopener noreferrer">Artifact Lab</a></em>, an
-        independent studio exploring experimental software, physical computing,
-        and hybrid digital systems.
+        Outside of work, I run
+        <em><a href="https://artifactlab.net" target="_blank" rel="noopener noreferrer">Artifact Lab</a></em>,
+        an independent studio for physical computing and hardware-software
+        hybrids.
       </p>
 
     </div>
 
-    <p><strong>Work</strong></p>
+    <p class="dashed"><strong>Work</strong></p>
 
     <p>
       <strong>Freelane</strong> -
-      <a href="https://useFreelane.com" target="_blank" rel="noopener noreferrer">useFreelane.com</a> -
-      A tool for freelancers that turns intake notes into a proposal,
-      contract, and payment in a single shareable link, replacing the
-      typical patchwork of PDFs, e-signature tools, and invoice chasing.
+      <a href="https://useFreelane.com" target="_blank" rel="noopener noreferrer">usefreelane.com</a> -
+      Freelane turns intake notes into a proposal, contract, and payment
+      in a single shareable link. I'm building it for freelancers to
+      replace the patchwork of PDFs, e-signature tools, and invoice
+      chasing.
     </p>
 
     <p>
       <strong>Donum</strong> -
       <a href="https://trydonum.com" target="_blank" rel="noopener noreferrer">trydonum.com</a> -
-      A free, universal wedding registry that lets couples add gifts from
-      any store and accept cash with <em>zero platform fees</em>, funded by
-      retailer partnerships instead of taking a cut of guests' contributions.
+      Donum lets couples add gifts from any store and accept cash with
+      <em>zero platform fees</em>. I'm building it to replace registries
+      that take a cut of guest contributions, funded by retailer
+      partnerships instead.
     </p>
 
     <p>
@@ -279,45 +305,80 @@
     </script>
   </main>
 
-  <script src="avatar.js?v=3" defer></script>
+  <script src="avatar.js?v=4" defer></script>
   <script>
     (function () {
       var btn = document.getElementById('play-btn');
       var label = btn.querySelector('.play-label');
       var icon = btn.querySelector('.play-icon');
 
+      var IDLE_TEXT = 'Read aloud by John';
+      var ACTIVE_TEXT = 'Now reading';
+      var FLAP_CHARS = 'abcdefghijklmnopqrstuvwxyz';
+
+      var flapToken = 0;
+
+      function buildSpans(text) {
+        label.innerHTML = '';
+        var spans = [];
+        for (var i = 0; i < text.length; i++) {
+          var s = document.createElement('span');
+          s.className = 'wave-char';
+          s.style.setProperty('--i', i);
+          s.textContent = text[i];
+          label.appendChild(s);
+          spans.push(s);
+        }
+        return spans;
+      }
+
+      function pad(s, n) {
+        while (s.length < n) s += ' ';
+        return s;
+      }
+
+      function flapTo(target) {
+        var spans = label.querySelectorAll('.wave-char');
+        var current = '';
+        for (var i = 0; i < spans.length; i++) current += spans[i].textContent;
+        var n = Math.max(current.length, target.length);
+        current = pad(current, n);
+        target = pad(target, n);
+
+        spans = buildSpans(current);
+
+        var myToken = ++flapToken;
+        var startTime = performance.now();
+        var POSITION_DURATION = 250;
+        var STAGGER = 25;
+
+        function tick() {
+          if (myToken !== flapToken) return;
+          var elapsed = performance.now() - startTime;
+          var done = true;
+          for (var i = 0; i < spans.length; i++) {
+            var positionEnd = STAGGER * i + POSITION_DURATION;
+            if (elapsed >= positionEnd) {
+              spans[i].textContent = target[i];
+            } else {
+              done = false;
+              spans[i].textContent = (target[i] === ' ' && current[i] === ' ')
+                ? ' '
+                : FLAP_CHARS.charAt(Math.floor(Math.random() * FLAP_CHARS.length));
+            }
+          }
+          if (!done) requestAnimationFrame(tick);
+        }
+        tick();
+      }
+
+      buildSpans(IDLE_TEXT);
+
       function attach() {
         var p = window.SpriteTalk && window.SpriteTalk.player;
         if (!p) { requestAnimationFrame(attach); return; }
 
-        function renderIdle() {
-          icon.textContent = '▸';
-          label.innerHTML = '';
-          var wave = 'Read aloud by John';
-          for (var i = 0; i < wave.length; i++) {
-            var c = wave.charAt(i);
-            if (c === ' ') {
-              label.appendChild(document.createTextNode(' '));
-            } else {
-              var s = document.createElement('span');
-              s.className = 'wave-char';
-              s.style.setProperty('--i', i);
-              s.textContent = c;
-              label.appendChild(s);
-            }
-          }
-        }
-
-        function renderPlaying() {
-          icon.textContent = '‖';
-          label.textContent = 'Now reading…';
-        }
-
-        function setReady() {
-          btn.disabled = false;
-          renderIdle();
-        }
-
+        function setReady() { btn.disabled = false; }
         if (p.duration > 0) setReady();
         else p.on('ready', setReady);
 
@@ -326,10 +387,26 @@
           else p.play();
         });
 
-        p.on('play', renderPlaying);
-        p.on('pause', renderIdle);
-        p.on('stop', renderIdle);
-        p.on('end', renderIdle);
+        p.on('play', function () {
+          icon.textContent = '▪︎';
+          btn.classList.add('is-playing');
+          flapTo(ACTIVE_TEXT);
+        });
+        p.on('pause', function () {
+          icon.textContent = '▸';
+          btn.classList.remove('is-playing');
+          flapTo(IDLE_TEXT);
+        });
+        p.on('stop', function () {
+          icon.textContent = '▸';
+          btn.classList.remove('is-playing');
+          flapTo(IDLE_TEXT);
+        });
+        p.on('end', function () {
+          icon.textContent = '▸';
+          btn.classList.remove('is-playing');
+          flapTo(IDLE_TEXT);
+        });
 
         // Avatar look/blink interactions
         var stage = document.getElementById('avatar-stage');
