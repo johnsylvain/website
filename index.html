@@ -122,6 +122,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
     }
 
     #avatar-stage canvas {
@@ -145,9 +146,20 @@
 
     /* ── Play button ───────────────────────────────────────── */
 
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .title-row > p {
+      margin: 0;
+    }
+
     .credit {
-      margin: 0 0 16px;
-      padding-left: 2em;
+      margin: 0;
     }
 
     .play-btn {
@@ -174,8 +186,8 @@
 
     .play-btn:not([disabled]):hover .wave-char,
     .play-btn:not([disabled]):focus-visible .wave-char {
-      animation: wave 200ms ease-in-out;
-      animation-delay: calc(var(--i) * 35ms);
+      animation: wave 120ms ease-in-out;
+      animation-delay: calc(var(--i) * 18ms);
     }
 
     @keyframes wave {
@@ -199,20 +211,21 @@
   <main>
     <div id="avatar-stage" data-sprite-talk aria-hidden="true"></div>
 
-    <p><strong>John Sylvain</strong>, Lead Engineer</p>
-
-    <p class="credit">
-      <button type="button" id="play-btn" class="play-btn" disabled>
-        <span class="play-icon" aria-hidden="true">▸</span>
-        <span class="play-label">Loading</span>
-      </button>
-    </p>
+    <div class="title-row">
+      <p><strong>John Sylvain</strong>, Lead Engineer</p>
+      <p class="credit">
+        <button type="button" id="play-btn" class="play-btn" disabled>
+          <span class="play-icon" aria-hidden="true">▸</span>
+          <span class="play-label">Loading</span>
+        </button>
+      </p>
+    </div>
 
     <div class="bio">
       <p>
         I'm John Sylvain, a <strong>lead frontend engineer</strong> at
         <strong><a href="https://joinoutfit.com" target="_blank" rel="noopener noreferrer">Outfit</a></strong>, a
-        personalized travel application focused on tailored recommendations and rich UI interactions.
+        personalized travel platform focused on tailored recommendations and rich UI interactions.
         My background spans startup product development,
         frontend architecture, and design-oriented engineering, with an
         emphasis on translating complex workflows into intuitive interfaces.
@@ -258,18 +271,15 @@
         <a href="https://github.com/johnsylvain" target="_blank" rel="noopener noreferrer">GitHub</a> ·
         <a href="https://www.linkedin.com/in/johnsylvain" target="_blank" rel="noopener noreferrer">LinkedIn</a>
       </p>
-      <p class="date"><em id="today"></em></p>
+      <p class="date">John Sylvain © <span id="year"></span></p>
     </footer>
 
     <script>
-      document.getElementById('today').textContent =
-        new Date().toLocaleDateString('en-US', {
-          year: 'numeric', month: 'long', day: 'numeric'
-        });
+      document.getElementById('year').textContent = new Date().getFullYear();
     </script>
   </main>
 
-  <script src="avatar.js?v=1" defer></script>
+  <script src="avatar.js?v=3" defer></script>
   <script>
     (function () {
       var btn = document.getElementById('play-btn');
@@ -283,7 +293,7 @@
         function renderIdle() {
           icon.textContent = '▸';
           label.innerHTML = '';
-          var wave = 'Read aloud';
+          var wave = 'Read aloud by John';
           for (var i = 0; i < wave.length; i++) {
             var c = wave.charAt(i);
             if (c === ' ') {
@@ -296,7 +306,6 @@
               label.appendChild(s);
             }
           }
-          label.appendChild(document.createTextNode(' by John'));
         }
 
         function renderPlaying() {
@@ -321,6 +330,35 @@
         p.on('pause', renderIdle);
         p.on('stop', renderIdle);
         p.on('end', renderIdle);
+
+        // Avatar look/blink interactions
+        var stage = document.getElementById('avatar-stage');
+        if (stage) {
+          var lookState = 'center';
+          var DEAD_ZONE = 30;
+          stage.addEventListener('mousemove', function (e) {
+            var rect = stage.getBoundingClientRect();
+            var x = e.clientX - rect.left;
+            var center = rect.width / 2;
+            var newState;
+            if (x < center - DEAD_ZONE / 2) newState = 'left';
+            else if (x > center + DEAD_ZONE / 2) newState = 'right';
+            else newState = 'center';
+            if (newState === lookState) return;
+            lookState = newState;
+            if (newState === 'left') p.lookRight(60000);
+            else if (newState === 'right') p.lookLeft(60000);
+            else p.lookCenter();
+          });
+          stage.addEventListener('mouseleave', function () {
+            if (lookState === 'center') return;
+            lookState = 'center';
+            p.lookCenter();
+          });
+          stage.addEventListener('mousedown', function () {
+            p.blink();
+          });
+        }
       }
 
       attach();
