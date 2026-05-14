@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>John Sylvain — Lead Frontend Engineer</title>
+  <meta name="description" content="John Sylvain — lead frontend engineer at Outfit. Building thoughtful product experiences, scalable frontend systems, and interaction-driven applications.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <div id="avatar-stage" data-sprite-talk aria-hidden="true"></div>
+
+    <p><strong>John Sylvain</strong></p>
+
+    <div class="bio">
+      <p>
+        I'm John Sylvain, a <strong>lead frontend engineer</strong> at
+        <strong><a href="https://joinoutfit.com" target="_blank" rel="noopener noreferrer">Outfit</a></strong>, a
+        personalized online travel app focused on tailed recommendations and rich UI interactions.
+        My background spans startup product development,
+        frontend architecture, and design-oriented engineering, with an
+        emphasis on translating complex workflows into intuitive interfaces.
+      </p>
+
+      <p>
+        Outside of client and product work, I run
+        <em><a href="https://artifactlab.net" target="_blank" rel="noopener noreferrer">Artifact Lab</a></em>, an
+        independent studio exploring experimental software, physical computing,
+        and hybrid digital systems.
+      </p>
+
+    </div>
+
+    <p class="credit">
+      <button type="button" id="play-btn" class="play-btn" disabled>
+        <span class="play-icon" aria-hidden="true">▸))</span>
+        <span class="play-label">Loading</span>
+      </button>
+    </p>
+
+    <p><strong>Work</strong></p>
+
+    <p>
+      <strong>Freelane</strong> -
+      <a href="https://useFreelane.com" target="_blank" rel="noopener noreferrer">useFreelane.com</a> -
+      A tool for freelancers that turns intake notes into a proposal,
+      contract, and payment in a single shareable link, replacing the
+      typical patchwork of PDFs, e-signature tools, and invoice chasing.
+    </p>
+
+    <p>
+      <strong>Donum</strong> -
+      <a href="https://trydonum.com" target="_blank" rel="noopener noreferrer">trydonum.com</a> -
+      A free, universal wedding registry that lets couples add gifts from
+      any store and accept cash with <em>zero platform fees</em>, funded by
+      retailer partnerships instead of taking a cut of guests' contributions.
+    </p>
+
+    <p>
+      <strong>Artifact Lab</strong> -
+      <a href="https://artifactlab.net" target="_blank" rel="noopener noreferrer">artifactlab.net</a> -
+      A private design studio for physical computing, hardware prototyping,
+      and experimental systems. Projects span physical interfaces, ambient
+      displays, and tangible interactive objects.
+    </p>
+
+    <footer>
+      <p>
+        <a href="https://github.com/johnsylvain" target="_blank" rel="noopener noreferrer">GitHub</a> ·
+        <a href="https://www.linkedin.com/in/johnsylvain" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </p>
+      <p class="date"><em id="today"></em></p>
+    </footer>
+
+    <script>
+      document.getElementById('today').textContent =
+        new Date().toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+    </script>
+  </main>
+
+  <script src="avatar.js" defer></script>
+  <script>
+    (function () {
+      var btn = document.getElementById('play-btn');
+      var label = btn.querySelector('.play-label');
+      var icon = btn.querySelector('.play-icon');
+
+      function attach() {
+        var p = window.SpriteTalk && window.SpriteTalk.player;
+        if (!p) { requestAnimationFrame(attach); return; }
+
+        var IDLE = 'Read aloud by John';
+        var ACTIVE = 'Now reading…';
+
+        function setReady() {
+          btn.disabled = false;
+          label.textContent = IDLE;
+          icon.textContent = '▸))';
+        }
+
+        if (p.duration > 0) setReady();
+        else p.on('ready', setReady);
+
+        btn.addEventListener('click', function () {
+          if (p.isPlaying) p.pause();
+          else p.play();
+        });
+
+        p.on('play', function () { label.textContent = ACTIVE; icon.textContent = ')))'; });
+        p.on('pause', function () { label.textContent = IDLE; icon.textContent = '▸))'; });
+        p.on('stop',  function () { label.textContent = IDLE; icon.textContent = '▸))'; });
+        p.on('end',   function () { label.textContent = IDLE; icon.textContent = '▸))'; });
+      }
+
+      attach();
+    })();
+  </script>
+</body>
+</html>
