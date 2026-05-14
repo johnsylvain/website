@@ -11,13 +11,20 @@
   <main>
     <div id="avatar-stage" data-sprite-talk aria-hidden="true"></div>
 
-    <p><strong>John Sylvain</strong></p>
+    <p><strong>John Sylvain</strong>, Lead Engineer</p>
+
+    <p class="credit">
+      <button type="button" id="play-btn" class="play-btn" disabled>
+        <span class="play-icon" aria-hidden="true">▸</span>
+        <span class="play-label">Loading</span>
+      </button>
+    </p>
 
     <div class="bio">
       <p>
         I'm John Sylvain, a <strong>lead frontend engineer</strong> at
         <strong><a href="https://joinoutfit.com" target="_blank" rel="noopener noreferrer">Outfit</a></strong>, a
-        personalized online travel app focused on tailed recommendations and rich UI interactions.
+        personalized travel application focused on tailored recommendations and rich UI interactions.
         My background spans startup product development,
         frontend architecture, and design-oriented engineering, with an
         emphasis on translating complex workflows into intuitive interfaces.
@@ -31,13 +38,6 @@
       </p>
 
     </div>
-
-    <p class="credit">
-      <button type="button" id="play-btn" class="play-btn" disabled>
-        <span class="play-icon" aria-hidden="true">▸))</span>
-        <span class="play-label">Loading</span>
-      </button>
-    </p>
 
     <p><strong>Work</strong></p>
 
@@ -92,13 +92,33 @@
         var p = window.SpriteTalk && window.SpriteTalk.player;
         if (!p) { requestAnimationFrame(attach); return; }
 
-        var IDLE = 'Read aloud by John';
-        var ACTIVE = 'Now reading…';
+        function renderIdle() {
+          icon.textContent = '▸';
+          label.innerHTML = '';
+          var wave = 'Read aloud';
+          for (var i = 0; i < wave.length; i++) {
+            var c = wave.charAt(i);
+            if (c === ' ') {
+              label.appendChild(document.createTextNode(' '));
+            } else {
+              var s = document.createElement('span');
+              s.className = 'wave-char';
+              s.style.setProperty('--i', i);
+              s.textContent = c;
+              label.appendChild(s);
+            }
+          }
+          label.appendChild(document.createTextNode(' by John'));
+        }
+
+        function renderPlaying() {
+          icon.textContent = '‖';
+          label.textContent = 'Now reading…';
+        }
 
         function setReady() {
           btn.disabled = false;
-          label.textContent = IDLE;
-          icon.textContent = '▸))';
+          renderIdle();
         }
 
         if (p.duration > 0) setReady();
@@ -109,10 +129,10 @@
           else p.play();
         });
 
-        p.on('play', function () { label.textContent = ACTIVE; icon.textContent = ')))'; });
-        p.on('pause', function () { label.textContent = IDLE; icon.textContent = '▸))'; });
-        p.on('stop',  function () { label.textContent = IDLE; icon.textContent = '▸))'; });
-        p.on('end',   function () { label.textContent = IDLE; icon.textContent = '▸))'; });
+        p.on('play', renderPlaying);
+        p.on('pause', renderIdle);
+        p.on('stop', renderIdle);
+        p.on('end', renderIdle);
       }
 
       attach();
