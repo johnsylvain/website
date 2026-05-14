@@ -1,14 +1,60 @@
+/* ── Reset ─────────────────────────────────────────────── */
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-html,
-body {
+* {
   margin: 0;
   padding: 0;
 }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 1px dotted currentColor;
+  outline-offset: 2px;
+}
+
+/* ── Base ──────────────────────────────────────────────── */
 
 body {
   background: #fff;
@@ -21,6 +67,37 @@ body {
   font-smooth: never;
   text-rendering: optimizeSpeed;
 }
+
+p {
+  margin: 0 0 16px;
+}
+
+em {
+  font-style: italic;
+}
+
+strong {
+  font-weight: 700;
+}
+
+::selection {
+  background: #000;
+  color: #fff;
+}
+
+a {
+  text-underline-offset: 3px;
+}
+
+a:hover,
+a:focus-visible {
+  background: #000;
+  color: #fff;
+  text-decoration: none;
+  outline: none;
+}
+
+/* ── Layout ────────────────────────────────────────────── */
 
 main {
   max-width: 640px;
@@ -45,22 +122,19 @@ main {
   height: auto !important;
 }
 
-p {
-  margin: 0 0 16px;
+footer {
+  margin-top: 48px;
 }
 
-a {
-  color: #000;
-  text-underline-offset: 3px;
+footer p {
+  margin: 0 0 8px;
 }
 
-a:hover,
-a:focus-visible {
-  background: #000;
-  color: #fff;
-  text-decoration: none;
-  outline: none;
+.date {
+  margin-top: 24px;
 }
+
+/* ── Play button ───────────────────────────────────────── */
 
 .credit {
   margin: 0 0 16px;
@@ -68,12 +142,6 @@ a:focus-visible {
 }
 
 .play-btn {
-  font: inherit;
-  background: none;
-  border: 0;
-  padding: 0;
-  color: inherit;
-  cursor: pointer;
   text-underline-offset: 3px;
 }
 
@@ -106,30 +174,7 @@ a:focus-visible {
   50% { font-weight: 700; }
 }
 
-em {
-  font-style: italic;
-}
-
-strong {
-  font-weight: 700;
-}
-
-footer {
-  margin-top: 48px;
-}
-
-footer p {
-  margin: 0 0 8px;
-}
-
-.date {
-  margin-top: 24px;
-}
-
-::selection {
-  background: #000;
-  color: #fff;
-}
+/* ── Responsive ────────────────────────────────────────── */
 
 @media (max-width: 600px) {
   main {
