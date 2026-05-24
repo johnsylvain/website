@@ -1,0 +1,7 @@
+{
+  "name": "johnsylvain-site",
+  "private": true,
+  "scripts": {
+    "dev": "node dev-server.js"
+  }
+}
